@@ -100,6 +100,17 @@ class Validation
         $this->errors = [];
         $params = $request->getParams();
         $params = array_merge((array) $request->getAttribute('routeInfo')[2], $params);
+
+        if ($this->options['includeHeaders']) {
+            $headers = array();
+            foreach ($request->getHeaders() as $header_key => $header_value) {
+                $header_format_key = str_replace('http_', '', strtolower($header_key));
+                $headers[$header_format_key] = implode(", ", $header_value);
+            }
+
+            $params = array_merge($headers, $params);
+        }
+
         $this->validate($params, $this->validators);
 
         $request = $request->withAttribute($this->errors_name, $this->getErrors());
